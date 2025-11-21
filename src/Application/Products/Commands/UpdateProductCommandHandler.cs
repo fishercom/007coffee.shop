@@ -26,6 +26,9 @@ namespace Application.Products.Commands
             product.Name = request.Name;
             product.Description = request.Description;
             product.Price = request.Price;
+            product.CategoryId = request.CategoryId;
+            product.Stock = request.Stock;
+            product.ImageUrl = request.ImageUrl;
 
             await _context.SaveChangesAsync(cancellationToken);
 

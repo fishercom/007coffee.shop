@@ -1,24 +1,16 @@
 import '../styles/globals.css'
 import { AuthProvider } from '../context/AuthContext';
-import { useRouter } from 'next/router';
-import DashboardLayout from '../components/DashboardLayout';
+import { CartProvider } from '../context/CartContext';
 
 function MyApp({ Component, pageProps }) {
-  const router = useRouter();
-
-  if (router.pathname === '/login') {
-    return (
-      <AuthProvider>
-        <Component {...pageProps} />
-      </AuthProvider>
-    );
-  }
+  // Use the layout defined at the page level, if available
+  const getLayout = Component.getLayout || ((page) => page);
 
   return (
     <AuthProvider>
-      <DashboardLayout>
-        <Component {...pageProps} />
-      </DashboardLayout>
+      <CartProvider>
+        {getLayout(<Component {...pageProps} />)}
+      </CartProvider>
     </AuthProvider>
   );
 }

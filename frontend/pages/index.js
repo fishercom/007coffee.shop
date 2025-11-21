@@ -1,56 +1,99 @@
-import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { useEffect, useState } from 'react';
+import api from '../services/api';
+import Layout from '../components/Layout';
+import Image from 'next/image';
+import { useCart } from '../context/CartContext';
 
-const data = [
-  { name: 'Jan', sales: 4000 },
-  { name: 'Feb', sales: 3000 },
-  { name: 'Mar', sales: 5000 },
-  { name: 'Apr', sales: 4500 },
-  { name: 'May', sales: 6000 },
-  { name: 'Jun', sales: 5500 },
-];
+export default function HomePage() {
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const { addToCart } = useCart();
 
-const DashboardHomePage = () => {
+  useEffect(() => {
+    fetchInitialData();
+  }, []);
+
+  const fetchInitialData = async () => {
+    try {
+      setLoading(true);
+      const [productsRes, categoriesRes] = await Promise.all([
+        api.get('/products'),
+        api.get('/categories'),
+      ]);
+      setProducts(productsRes.data);
+      setCategories(categoriesRes.data);
+    } catch (error) {
+      console.error('Error fetching initial data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredProducts = selectedCategory
+    ? products.filter((p) => p.categoryId === selectedCategory.id)
+    : products;
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="text-center">Loading...</div>
+      </Layout>
+    );
+  }
+
   return (
-    <>
-      <h1 className="text-3xl font-semibold text-gray-800">Dashboard</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-lg font-semibold text-gray-600">Total Sales</h2>
-          <p className="text-3xl font-bold text-gray-800 mt-2">$125,670</p>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-lg font-semibold text-gray-600">New Orders</h2>
-          <p className="text-3xl font-bold text-gray-800 mt-2">3,456</p>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-lg font-semibold text-gray-600">New Members</h2>
-          <p className="text-3xl font-bold text-gray-800 mt-2">1,234</p>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-lg font-semibold text-gray-600">Pending Orders</h2>
-          <p className="text-3xl font-bold text-gray-800 mt-2">123</p>
-        </div>
-      </div>
-      <div className="mt-8">
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-lg font-semibold text-gray-600">Sales Over Time</h2>
-          <div style={{ width: '100%', height: 300 }}>
-            <ResponsiveContainer>
-              <BarChart data={data}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="sales" fill="#8884d8" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-};
+    <Layout>
+      <div className="container mx-auto px-4">
+        <h1 className="text-4xl font-bold text-center my-10">Our Products</h1>
 
-export default DashboardHomePage;
+        <div className="flex justify-center mb-8">
+          <button
+            onClick={() => setSelectedCategory(null)}
+            className={`px-4 py-2 mx-2 rounded-full font-semibold ${!selectedCategory ? 'bg-primary text-white' : 'bg-gray-200'}`}
+          >
+            All
+          </button>
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-4 py-2 mx-2 rounded-full font-semibold ${selectedCategory?.id === cat.id ? 'bg-primary text-white' : 'bg-gray-200'}`}
+            >
+              {cat.name}
+            </button>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+          {filteredProducts.map((product) => (
+            <div key={product.id} className="bg-white shadow-lg rounded-lg overflow-hidden">
+              <div className="h-48 relative">
+                {product.imageUrl ? (
+                  <Image src={product.imageUrl} alt={product.name} layout="fill" objectFit="cover" />
+                ) : (
+                  <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500">
+                    No Image
+                  </div>
+                )}
+              </div>
+              <div className="p-6">
+                <h2 className="text-xl font-bold mb-2">{product.name}</h2>
+                <p className="text-gray-600 mb-2">{product.categoryName}</p>
+                <p className="text-xl text-gray-700 mb-2">Stock: {product.stock}</p>
+                <p className="text-2xl font-bold text-primary">${product.price.toFixed(2)}</p>
+                <button
+                  onClick={() => addToCart(product)}
+                  className="mt-4 w-full bg-accent text-white py-2 rounded hover:bg-yellow-700"
+                >
+                  Add to Cart
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </Layout>
+  );
+}

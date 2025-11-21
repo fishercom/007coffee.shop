@@ -45,7 +45,11 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Application.Products.Commands.CreateProductCommand).Assembly));
+builder.Services.AddMediatR(cfg => {
+    cfg.RegisterServicesFromAssembly(typeof(Application.Products.Commands.CreateProductCommand).Assembly);
+    cfg.RegisterServicesFromAssembly(typeof(Application.Orders.Commands.CreateOrderCommand).Assembly);
+    cfg.RegisterServicesFromAssembly(typeof(Application.Users.Commands.UpdateUserRolesCommand).Assembly);
+});
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -69,7 +73,8 @@ using (var scope = app.Services.CreateScope())
     DbSeeder.Seed(dbContext);       // Seed products
 
     var userManager = services.GetRequiredService<UserManager<Domain.Entities.ApplicationUser>>();
-    await DataSeeder.SeedAsync(userManager); // Seed users
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+    await DataSeeder.SeedAsync(userManager, roleManager); // Seed users and roles
 }
 
 app.Run();

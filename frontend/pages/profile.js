@@ -99,6 +99,9 @@ export default function Profile() {
                 <img src={userAvatar} alt="User Avatar" className="w-24 h-24 rounded-full mb-4" />
                 <h2 className="text-xl font-semibold">{user.firstName} {user.lastName}</h2>
                 <p className="text-gray-600">{user.email}</p>
+                {user.roles && user.roles.length > 0 && (
+                    <p className="text-sm text-gray-500 mt-2">Roles: {user.roles.join(', ')}</p>
+                )}
             </div>
 
             <div className="px-4 py-6 sm:px-0">

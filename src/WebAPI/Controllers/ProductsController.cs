@@ -1,11 +1,11 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Domain.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Application.Products.Queries;
 using Application.Products.Commands;
+using Domain.Entities;
 
 namespace WebAPI.Controllers
 {
@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
 
         [AllowAnonymous]
         [HttpGet]
-        public async Task<ActionResult<List<Product>>> Get()
+        public async Task<ActionResult<IEnumerable<ProductDto>>> Get()
         {
             var products = await _mediator.Send(new GetProductsQuery());
             return Ok(products);
@@ -30,7 +30,7 @@ namespace WebAPI.Controllers
 
         [AllowAnonymous]
         [HttpGet("{id}")]
-        public async Task<ActionResult<Product>> Get(int id)
+        public async Task<ActionResult<ProductDto>> Get(int id)
         {
             var product = await _mediator.Send(new GetProductByIdQuery(id));
             if (product == null)
@@ -40,7 +40,7 @@ namespace WebAPI.Controllers
             return Ok(product);
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<Product>> Post([FromBody] CreateProductCommand command)
         {
@@ -48,7 +48,7 @@ namespace WebAPI.Controllers
             return CreatedAtAction(nameof(Get), new { id = product.Id }, product);
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] UpdateProductCommand command)
         {
@@ -66,7 +66,7 @@ namespace WebAPI.Controllers
             return NoContent();
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

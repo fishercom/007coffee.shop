@@ -21,7 +21,10 @@ namespace Application.Products.Commands
             {
                 Name = request.Name,
                 Description = request.Description,
-                Price = request.Price
+                Price = request.Price,
+                CategoryId = request.CategoryId,
+                Stock = request.Stock,
+                ImageUrl = request.ImageUrl
             };
 
             _context.Products.Add(product);

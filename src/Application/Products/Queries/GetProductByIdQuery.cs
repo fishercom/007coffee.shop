@@ -1,7 +1,14 @@
 using MediatR;
-using Domain.Entities;
 
 namespace Application.Products.Queries
 {
-    public record GetProductByIdQuery(int Id) : IRequest<Product>;
+    public class GetProductByIdQuery : IRequest<ProductDto?>
+    {
+        public int Id { get; }
+
+        public GetProductByIdQuery(int id)
+        {
+            Id = id;
+        }
+    }
 }

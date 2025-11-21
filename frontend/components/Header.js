@@ -1,17 +1,18 @@
 import Link from 'next/link';
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useAuth } from '../context/AuthContext'; // Import useAuth
+import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
+import { FiShoppingCart } from 'react-icons/fi';
 
 export default function Header() {
-  const { isLoggedIn, logout } = useAuth(); // Use isLoggedIn and logout from AuthContext
+  const { isLoggedIn, logout } = useAuth();
+  const { getTotalItems } = useCart();
   const router = useRouter();
 
-  // No need for local isLoggedIn state or useEffect here anymore, AuthContext handles it
-
   const handleLogout = () => {
-    logout(); // Call logout from AuthContext
-    router.push('/login'); // Redirect to login page after logout
+    logout();
+    router.push('/login');
   };
 
   return (
@@ -29,6 +30,16 @@ export default function Header() {
                 <li><Link href="/profile" className="text-white hover:text-accent">Profile</Link></li>
               </>
             )}
+            <li>
+              <Link href="/cart" className="relative text-white hover:text-accent">
+                <FiShoppingCart className="w-6 h-6" />
+                {getTotalItems() > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {getTotalItems()}
+                  </span>
+                )}
+              </Link>
+            </li>
             {isLoggedIn ? (
               <li>
                 <button onClick={handleLogout} className="bg-accent text-white px-4 py-2 rounded hover:bg-yellow-700">

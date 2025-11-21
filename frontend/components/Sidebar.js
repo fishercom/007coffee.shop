@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { FiHome, FiBox, FiShoppingCart, FiUsers, FiSettings } from 'react-icons/fi';
+import { FiHome, FiBox, FiShoppingCart, FiUsers, FiSettings, FiTag } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 
 const Sidebar = () => {
@@ -17,7 +17,7 @@ const Sidebar = () => {
         <span className="ml-3 font-semibold">{userName}</span>
       </Link>
       <nav className="flex-1 px-4 py-6">
-        <Link href="/" className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md">
+        <Link href="/dashboard" className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md">
           <FiHome className="w-6 h-6 mr-3" />
           Dashboard
         </Link>
@@ -25,9 +25,25 @@ const Sidebar = () => {
           <FiBox className="w-6 h-6 mr-3" />
           Products
         </Link>
+        <Link href="/categories" className="flex items-center px-4 py-2 mt-4 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md">
+          <FiTag className="w-6 h-6 mr-3" />
+          Categories
+        </Link>
+        {user?.roles?.includes("Admin") && (
+            <>
+                <Link href="/admin/orders" className="flex items-center px-4 py-2 mt-4 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md">
+                  <FiShoppingCart className="w-6 h-6 mr-3" />
+                  Manage All Orders
+                </Link>
+                <Link href="/admin/users" className="flex items-center px-4 py-2 mt-4 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md">
+                  <FiUsers className="w-6 h-6 mr-3" />
+                  Manage Users
+                </Link>
+            </>
+        )}
         <Link href="/orders" className="flex items-center px-4 py-2 mt-4 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md">
           <FiShoppingCart className="w-6 h-6 mr-3" />
-          Orders
+          My Orders
         </Link>
         <Link href="/members" className="flex items-center px-4 py-2 mt-4 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md">
           <FiUsers className="w-6 h-6 mr-3" />
