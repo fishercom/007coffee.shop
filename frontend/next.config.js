@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  images: {
+    domains: ['images.pexels.com', 'picsum.photos'],
+  },
   // Enable PostCSS support (usually enabled by default, but explicit can help)
   experimental: {
     // This option might be needed for older Next.js versions or specific setups
