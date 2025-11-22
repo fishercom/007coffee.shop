@@ -26,7 +26,7 @@ namespace Infrastructure.Data
                 db.Products.AddRange(
                     new Product { Name = "Product A", Description = "Description A", Price = 10, Stock = 100, CategoryId = coffeeCategory?.Id ?? 1, ImageUrl = "https://images.pexels.com/photos/34092/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" },
                     new Product { Name = "Product B", Description = "Description B", Price = 15.5M, Stock = 50, CategoryId = coffeeCategory?.Id ?? 1, ImageUrl = "https://images.pexels.com/photos/324028/pexels-photo-324028.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" },
-                    new Product { Name = "Product C", Description = "Description C", Price = 20, Stock = 75, CategoryId = equipmentCategory?.Id ?? 2, ImageUrl = "https://images.pexels.com/photos/2558667/pexels-photo-2558667.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" }
+                    new Product { Name = "Product C", Description = "Description C", Price = 20, Stock = 75, CategoryId = equipmentCategory?.Id ?? 2, ImageUrl = "https://images.pexels.com/photos/1419944/pexels-photo-1419944.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" }
                 );
                 db.SaveChanges();
             }
