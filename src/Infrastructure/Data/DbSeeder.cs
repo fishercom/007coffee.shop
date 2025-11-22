@@ -10,8 +10,8 @@ namespace Infrastructure.Data
         {
             if (!db.Categories.Any())
             {
-                var coffeeCategory = new Category { Name = "Coffee Beans", Description = "Premium coffee beans from around the world" };
-                var equipmentCategory = new Category { Name = "Equipment", Description = "Coffee brewing equipment" };
+                var coffeeCategory = new Category { Name = "Coffee Beans", Description = "Premium coffee beans from around the world", ImageUrl = "https://picsum.photos/seed/coffee/800/600" };
+                var equipmentCategory = new Category { Name = "Equipment", Description = "Coffee brewing equipment", ImageUrl = "https://picsum.photos/seed/equipment/800/600" };
                 
                 db.Categories.AddRange(coffeeCategory, equipmentCategory);
                 db.SaveChanges(); // Save categories first to get their IDs
