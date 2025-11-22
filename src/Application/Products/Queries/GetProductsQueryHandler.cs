@@ -28,7 +28,9 @@ namespace Application.Products.Queries
                     Description = p.Description,
                     Price = p.Price,
                     CategoryId = p.CategoryId,
-                    CategoryName = p.Category.Name
+                    CategoryName = p.Category.Name,
+                    Stock = p.Stock,
+                    ImageUrl = p.ImageUrl
                 })
                 .ToListAsync(cancellationToken);
         }
