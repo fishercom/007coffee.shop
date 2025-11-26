@@ -97,7 +97,7 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var dbContext = services.GetRequiredService<AppDbContext>();
-    dbContext.Database.Migrate();   // Apply pending migrations
+    dbContext.Database.EnsureCreated();   // Create database schema if it doesn't exist (for demo)
     DbSeeder.Seed(dbContext);       // Seed products
 
     var userManager = services.GetRequiredService<UserManager<Domain.Entities.ApplicationUser>>();
