@@ -1,0 +1,48 @@
+services:
+  # Backend Service
+  - type: web
+    name: coffee-shop-backend
+    env: docker
+    plan: free
+    dockerContext: .
+    dockerfilePath: Dockerfile
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: DB_HOST
+        fromDatabase:
+          name: coffee-shop-db
+          property: host
+      - key: DB_USER
+        fromDatabase:
+          name: coffee-shop-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: coffee-shop-db
+          property: password
+      - key: DB_NAME
+        fromDatabase:
+          name: coffee-shop-db
+          property: database
+
+  # Frontend Service
+  - type: web
+    name: coffee-shop-frontend
+    env: node
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          type: web
+          name: coffee-shop-backend
+          property: url
+
+databases:
+  - name: coffee-shop-db
+    plan: free
+    databaseName: coffeeshop
+    user: coffeeshop_user
