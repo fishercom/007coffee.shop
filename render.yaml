@@ -9,22 +9,10 @@ services:
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
-      - key: DB_HOST
+      - key: ConnectionStrings__DefaultConnection
         fromDatabase:
           name: coffee-shop-db
-          property: host
-      - key: DB_USER
-        fromDatabase:
-          name: coffee-shop-db
-          property: user
-      - key: DB_PASSWORD
-        fromDatabase:
-          name: coffee-shop-db
-          property: password
-      - key: DB_NAME
-        fromDatabase:
-          name: coffee-shop-db
-          property: database
+          property: connectionString
 
   # Frontend Service
   - type: web
