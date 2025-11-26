@@ -103,32 +103,50 @@ using (var scope = app.Services.CreateScope())
     try 
     {
         var databaseCreator = dbContext.Database.GetService<IDatabaseCreator>() as RelationalDatabaseCreator;
-        if (databaseCreator != null)
+        
+        // Check if the critical 'Categories' table exists
+        var tablesExist = false;
+        try 
         {
-            // Create Database if it doesn't exist
-            if (!databaseCreator.CanConnect()) 
+            // Just try to query the table. If it fails, we assume schema is missing/corrupt.
+            // Using a raw command to avoid EF Core overhead/caching issues for this check.
+            using (var command = dbContext.Database.GetDbConnection().CreateCommand())
             {
-                Console.WriteLine("Database does not exist. Creating...");
-                databaseCreator.Create();
-                databaseCreator.CreateTables();
+                command.CommandText = "SELECT 1 FROM \"Categories\" LIMIT 1";
+                dbContext.Database.OpenConnection();
+                using (var result = command.ExecuteReader())
+                {
+                    tablesExist = true;
+                }
             }
-            // Create Tables if they don't exist
-            else if (!databaseCreator.HasTables())
-            {
-                Console.WriteLine("Database exists but has no tables. Creating tables...");
-                databaseCreator.CreateTables();
-            }
-            else
-            {
-                Console.WriteLine("Database and tables already exist.");
-            }
+        }
+        catch 
+        {
+            // Table doesn't exist or other error
+            tablesExist = false;
+        }
+        finally
+        {
+            dbContext.Database.CloseConnection();
+        }
+
+        if (!tablesExist)
+        {
+            Console.WriteLine("Categories table missing. Performing clean slate initialization...");
+            // WARNING: This deletes the database! Only for demo/dev environments.
+            dbContext.Database.EnsureDeleted();
+            dbContext.Database.EnsureCreated();
+            Console.WriteLine("Database recreated successfully.");
+        }
+        else
+        {
+            Console.WriteLine("Database schema appears correct.");
         }
     }
     catch (Exception ex)
     {
         Console.WriteLine($"Error initializing database: {ex.Message}");
-        // Attempt EnsureCreated as fallback
-        dbContext.Database.EnsureCreated();
+        throw;
     }
     
     DbSeeder.Seed(dbContext);       // Seed products
