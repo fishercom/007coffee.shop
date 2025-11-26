@@ -97,7 +97,17 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var dbContext = services.GetRequiredService<AppDbContext>();
-    dbContext.Database.EnsureCreated();   // Create database schema if it doesn't exist (for demo)
+    try 
+    {
+        var created = dbContext.Database.EnsureCreated();
+        Console.WriteLine($"Database created: {created}");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error creating database: {ex.Message}");
+        throw;
+    }
+    
     DbSeeder.Seed(dbContext);       // Seed products
 
     var userManager = services.GetRequiredService<UserManager<Domain.Entities.ApplicationUser>>();
