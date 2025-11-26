@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Infrastructure.Data;
 using Application.Interfaces;
 using System.Text;
@@ -97,15 +99,36 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var dbContext = services.GetRequiredService<AppDbContext>();
+    
     try 
     {
-        var created = dbContext.Database.EnsureCreated();
-        Console.WriteLine($"Database created: {created}");
+        var databaseCreator = dbContext.Database.GetService<IDatabaseCreator>() as RelationalDatabaseCreator;
+        if (databaseCreator != null)
+        {
+            // Create Database if it doesn't exist
+            if (!databaseCreator.CanConnect()) 
+            {
+                Console.WriteLine("Database does not exist. Creating...");
+                databaseCreator.Create();
+                databaseCreator.CreateTables();
+            }
+            // Create Tables if they don't exist
+            else if (!databaseCreator.HasTables())
+            {
+                Console.WriteLine("Database exists but has no tables. Creating tables...");
+                databaseCreator.CreateTables();
+            }
+            else
+            {
+                Console.WriteLine("Database and tables already exist.");
+            }
+        }
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"Error creating database: {ex.Message}");
-        throw;
+        Console.WriteLine($"Error initializing database: {ex.Message}");
+        // Attempt EnsureCreated as fallback
+        dbContext.Database.EnsureCreated();
     }
     
     DbSeeder.Seed(dbContext);       // Seed products
