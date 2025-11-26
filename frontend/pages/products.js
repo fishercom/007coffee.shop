@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import Modal from '../components/Modal';
 import ProductForm from '../components/ProductForm';
 import DashboardLayout from '../components/DashboardLayout';
@@ -12,6 +13,8 @@ function ProductsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const router = useRouter();
+  const { user } = useAuth();
+  const isAdmin = user?.roles?.includes('Admin');
 
   useEffect(() => {
     const token = localStorage.getItem('jwt');
@@ -81,9 +84,11 @@ function ProductsPage() {
     <>
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-primary">Manage Products</h1>
-        <button onClick={handleAdd} className="bg-accent text-white px-4 py-2 rounded hover:bg-yellow-700">
-          Add Product
-        </button>
+        {isAdmin && (
+          <button onClick={handleAdd} className="bg-accent text-white px-4 py-2 rounded hover:bg-yellow-700">
+            Add Product
+          </button>
+        )}
       </div>
 
       <div className="bg-white shadow-lg rounded-lg overflow-hidden">
@@ -110,9 +115,14 @@ function ProductsPage() {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.categoryName}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.price.toFixed(2)}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.stock}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.stock}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <button onClick={() => handleEdit(product)} className="text-indigo-600 hover:text-indigo-900 mr-4">Edit</button>
-                  <button onClick={() => handleDelete(product.id)} className="text-red-600 hover:text-red-900">Delete</button>
+                  {isAdmin && (
+                    <>
+                      <button onClick={() => handleEdit(product)} className="text-indigo-600 hover:text-indigo-900 mr-4">Edit</button>
+                      <button onClick={() => handleDelete(product.id)} className="text-red-600 hover:text-red-900">Delete</button>
+                    </>
+                  )}
                 </td>
               </tr>
             ))}
@@ -132,7 +142,7 @@ function ProductsPage() {
 }
 
 ProductsPage.getLayout = function getLayout(page) {
-    return <DashboardLayout>{page}</DashboardLayout>;
+  return <DashboardLayout>{page}</DashboardLayout>;
 };
 
 export default ProductsPage;

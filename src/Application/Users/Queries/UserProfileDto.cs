@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Application.Users.Queries
 {
     public class UserProfileDto
@@ -8,5 +10,6 @@ namespace Application.Users.Queries
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public string? PhoneNumber { get; set; }
+        public IList<string> Roles { get; set; } = new List<string>();
     }
 }

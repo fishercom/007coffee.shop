@@ -31,7 +31,8 @@ namespace Application.Users.Queries
                 UserName = user.UserName ?? string.Empty,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                PhoneNumber = user.PhoneNumber
+                PhoneNumber = user.PhoneNumber,
+                Roles = await _userManager.GetRolesAsync(user)
             };
         }
     }

@@ -8,6 +8,7 @@ using System.Security.Claims;
 using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
 using System;
+using System.Collections.Generic;
 
 namespace WebAPI.Controllers
 {
@@ -32,6 +33,12 @@ namespace WebAPI.Controllers
                     new Claim(ClaimTypes.Name, user.UserName ?? "unknown"),
                     new Claim(ClaimTypes.NameIdentifier, user.Id)
                 };
+
+                var roles = await _userManager.GetRolesAsync(user);
+                foreach (var role in roles)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, role));
+                }
 
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {

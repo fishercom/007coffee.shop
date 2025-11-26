@@ -1,4 +1,5 @@
 import React from 'react';
+import DashboardLayout from '../components/DashboardLayout';
 
 const MembersPage = () => {
   return (
@@ -7,6 +8,10 @@ const MembersPage = () => {
       <p className="mt-4 text-gray-600">This is where you'll manage your members.</p>
     </>
   );
+};
+
+MembersPage.getLayout = function getLayout(page) {
+  return <DashboardLayout>{page}</DashboardLayout>;
 };
 
 export default MembersPage;

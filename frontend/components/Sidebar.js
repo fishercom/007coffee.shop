@@ -1,21 +1,28 @@
 import React from 'react';
 import Link from 'next/link';
-import { FiHome, FiBox, FiShoppingCart, FiUsers, FiSettings, FiTag } from 'react-icons/fi';
+import { FiHome, FiBox, FiShoppingCart, FiUsers, FiSettings, FiTag, FiLogOut } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
+import { useRouter } from 'next/router';
 
 const Sidebar = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const router = useRouter();
   const defaultAvatar = '/default-avatar.svg'; // Path to your default avatar
 
   const userName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email : 'Guest';
   const userAvatar = user && user.avatarUrl ? user.avatarUrl : defaultAvatar;
 
+  const handleLogout = () => {
+    logout();
+    router.push('/login');
+  };
+
   return (
     <div className="w-64 h-screen bg-gray-800 text-white flex flex-col">
-      <Link href="/profile" className="flex items-center justify-center h-20 border-b border-gray-700">
+      <div className="flex items-center justify-center h-20 border-b border-gray-700">
         <img src={userAvatar} alt="User Avatar" className="w-10 h-10 rounded-full" />
         <span className="ml-3 font-semibold">{userName}</span>
-      </Link>
+      </div>
       <nav className="flex-1 px-4 py-6">
         <Link href="/dashboard" className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md">
           <FiHome className="w-6 h-6 mr-3" />
@@ -30,16 +37,16 @@ const Sidebar = () => {
           Categories
         </Link>
         {user?.roles?.includes("Admin") && (
-            <>
-                <Link href="/admin/orders" className="flex items-center px-4 py-2 mt-4 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md">
-                  <FiShoppingCart className="w-6 h-6 mr-3" />
-                  Manage All Orders
-                </Link>
-                <Link href="/admin/users" className="flex items-center px-4 py-2 mt-4 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md">
-                  <FiUsers className="w-6 h-6 mr-3" />
-                  Manage Users
-                </Link>
-            </>
+          <>
+            <Link href="/admin/orders" className="flex items-center px-4 py-2 mt-4 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md">
+              <FiShoppingCart className="w-6 h-6 mr-3" />
+              Manage All Orders
+            </Link>
+            <Link href="/admin/users" className="flex items-center px-4 py-2 mt-4 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md">
+              <FiUsers className="w-6 h-6 mr-3" />
+              Manage Users
+            </Link>
+          </>
         )}
         <Link href="/orders" className="flex items-center px-4 py-2 mt-4 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md">
           <FiShoppingCart className="w-6 h-6 mr-3" />
@@ -49,10 +56,14 @@ const Sidebar = () => {
           <FiUsers className="w-6 h-6 mr-3" />
           Members
         </Link>
-        <Link href="/settings" className="flex items-center px-4 py-2 mt-4 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md">
+        <Link href="/profile" className="flex items-center px-4 py-2 mt-4 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md">
           <FiSettings className="w-6 h-6 mr-3" />
-          Settings
+          My Profile
         </Link>
+        <button onClick={handleLogout} className="flex items-center px-4 py-2 mt-4 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md w-full text-left">
+          <FiLogOut className="w-6 h-6 mr-3" />
+          Exit
+        </button>
       </nav>
     </div>
   );

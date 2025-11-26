@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['images.pexels.com', 'picsum.photos'],
+    domains: ['images.pexels.com', 'picsum.photos', 'images.unsplash.com'],
   },
   // Enable PostCSS support (usually enabled by default, but explicit can help)
   experimental: {
