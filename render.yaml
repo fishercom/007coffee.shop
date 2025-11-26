@@ -10,9 +10,7 @@ services:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
       - key: ConnectionStrings__DefaultConnection
-        fromDatabase:
-          name: coffee-shop-db
-          property: connectionString
+        value: postgresql://db_007coffee_shop_user:Rr4F908bcZbXoKKgLH6AS1FpdQFelFuX@dpg-d4jhnuf5r7bs73ff7ong-a.oregon-postgres.render.com/db_007coffee_shop
 
   # Frontend Service
   - type: web
@@ -28,9 +26,3 @@ services:
           type: web
           name: coffee-shop-backend
           property: url
-
-databases:
-  - name: coffee-shop-db
-    plan: free
-    databaseName: coffeeshop
-    user: coffeeshop_user
