@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import Modal from '../components/Modal';
 import ProductForm from '../components/ProductForm';
 import DashboardLayout from '../components/DashboardLayout';
+import IconButton from '../components/IconButton';
 import Image from 'next/image';
 
 function ProductsPage() {
@@ -115,13 +116,22 @@ function ProductsPage() {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.categoryName}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.price.toFixed(2)}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.stock}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.stock}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   {isAdmin && (
-                    <>
-                      <button onClick={() => handleEdit(product)} className="text-indigo-600 hover:text-indigo-900 mr-4">Edit</button>
-                      <button onClick={() => handleDelete(product.id)} className="text-red-600 hover:text-red-900">Delete</button>
-                    </>
+                    <div className="flex justify-end gap-2">
+                      <IconButton
+                        onClick={() => handleEdit(product)}
+                        icon="edit"
+                        label="Edit product"
+                        variant="primary"
+                      />
+                      <IconButton
+                        onClick={() => handleDelete(product.id)}
+                        icon="delete"
+                        label="Delete product"
+                        variant="danger"
+                      />
+                    </div>
                   )}
                 </td>
               </tr>

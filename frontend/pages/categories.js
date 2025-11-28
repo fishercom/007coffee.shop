@@ -4,6 +4,7 @@ import api from '../services/api';
 import Modal from '../components/Modal';
 import CategoryForm from '../components/CategoryForm';
 import DashboardLayout from '../components/DashboardLayout';
+import IconButton from '../components/IconButton';
 import Image from 'next/image';
 
 function CategoriesPage() {
@@ -108,8 +109,20 @@ function CategoriesPage() {
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{category.name}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{category.description}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <button onClick={() => handleEdit(category)} className="text-indigo-600 hover:text-indigo-900 mr-4">Edit</button>
-                  <button onClick={() => handleDelete(category.id)} className="text-red-600 hover:text-red-900">Delete</button>
+                  <div className="flex justify-end gap-2">
+                    <IconButton
+                      onClick={() => handleEdit(category)}
+                      icon="edit"
+                      label="Edit category"
+                      variant="primary"
+                    />
+                    <IconButton
+                      onClick={() => handleDelete(category.id)}
+                      icon="delete"
+                      label="Delete category"
+                      variant="danger"
+                    />
+                  </div>
                 </td>
               </tr>
             ))}
@@ -129,7 +142,7 @@ function CategoriesPage() {
 }
 
 CategoriesPage.getLayout = function getLayout(page) {
-    return <DashboardLayout>{page}</DashboardLayout>;
+  return <DashboardLayout>{page}</DashboardLayout>;
 };
 
 export default CategoriesPage;

@@ -49,5 +49,31 @@ namespace WebAPI.Controllers
             await _mediator.Send(command);
             return NoContent();
         }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserCommand command)
+        {
+            var userId = await _mediator.Send(command);
+            return CreatedAtAction(nameof(GetUserWithRoles), new { id = userId }, new { id = userId });
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserCommand command)
+        {
+            if (id != command.UserId)
+            {
+                return BadRequest("User ID in route does not match body.");
+            }
+
+            await _mediator.Send(command);
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUser(string id)
+        {
+            await _mediator.Send(new DeleteUserCommand { UserId = id });
+            return NoContent();
+        }
     }
 }

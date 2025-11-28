@@ -4,6 +4,8 @@ import api from '../../services/api';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../context/AuthContext';
 import Modal from '../../components/Modal';
+import IconButton from '../../components/IconButton';
+import UserForm from '../../components/UserForm';
 
 function AdminUsersPage() {
   const [users, setUsers] = useState([]);
@@ -14,7 +16,6 @@ function AdminUsersPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [allRoles, setAllRoles] = useState(['Admin', 'Member']); // Hardcoded roles for now
 
   useEffect(() => {
     if (!isLoggedIn || !currentUser || !currentUser.roles.includes("Admin")) {
@@ -38,34 +39,45 @@ function AdminUsersPage() {
     }
   };
 
-  const handleEditRoles = (user) => {
+  const handleAdd = () => {
+    setSelectedUser(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (user) => {
     setSelectedUser(user);
     setIsModalOpen(true);
   };
 
-  const handleRoleChange = (roleName, isChecked) => {
-    if (selectedUser) {
-      if (isChecked) {
-        setSelectedUser({ ...selectedUser, roles: [...selectedUser.roles, roleName] });
-      } else {
-        setSelectedUser({ ...selectedUser, roles: selectedUser.roles.filter(r => r !== roleName) });
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+      try {
+        await api.delete(`/users/${id}`);
+        fetchAllUsers();
+      } catch (err) {
+        console.error('Error deleting user:', err);
+        setError(err.response?.data?.message || 'Failed to delete user.');
       }
     }
   };
 
-  const handleSaveRoles = async () => {
-    if (!selectedUser) return;
-
-    setLoading(true);
+  const handleSave = async (userData) => {
     try {
-      await api.put(`/users/${selectedUser.id}/roles`, { userId: selectedUser.id, roles: selectedUser.roles });
+      if (selectedUser) {
+        // Update existing user
+        await api.put(`/users/${selectedUser.id}`, {
+          userId: selectedUser.id,
+          ...userData
+        });
+      } else {
+        // Create new user
+        await api.post('/users', userData);
+      }
       setIsModalOpen(false);
-      fetchAllUsers(); // Refresh users
+      fetchAllUsers();
     } catch (err) {
-      console.error('Error updating user roles:', err);
-      setError(err.response?.data?.message || 'Failed to update user roles.');
-    } finally {
-      setLoading(false);
+      console.error('Error saving user:', err);
+      setError(err.response?.data?.message || 'Failed to save user.');
     }
   };
 
@@ -79,15 +91,29 @@ function AdminUsersPage() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center text-red-600">
-        <p className="text-2xl">{error}</p>
+      <div className="flex flex-col items-center justify-center text-red-600">
+        <p className="text-2xl mb-4">{error}</p>
+        <button
+          onClick={() => { setError(''); fetchAllUsers(); }}
+          className="bg-primary text-white px-4 py-2 rounded hover:bg-primary-dark"
+        >
+          Retry
+        </button>
       </div>
     );
   }
 
   return (
     <>
-      <h1 className="text-3xl font-bold text-primary mb-8">Manage Users</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-primary">Manage Users</h1>
+        <button
+          onClick={handleAdd}
+          className="bg-accent text-white px-4 py-2 rounded hover:bg-yellow-700"
+        >
+          Add User
+        </button>
+      </div>
 
       {users.length === 0 ? (
         <p className="text-lg text-gray-700">No users found.</p>
@@ -98,6 +124,7 @@ function AdminUsersPage() {
               <tr>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Roles</th>
                 <th scope="col" className="relative px-6 py-3">
                   <span className="sr-only">Actions</span>
@@ -109,9 +136,23 @@ function AdminUsersPage() {
                 <tr key={user.id}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.email}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.firstName} {user.lastName}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.phoneNumber || '-'}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.roles.join(', ')}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button onClick={() => handleEditRoles(user)} className="text-indigo-600 hover:text-indigo-900 mr-4">Edit Roles</button>
+                    <div className="flex justify-end gap-2">
+                      <IconButton
+                        onClick={() => handleEdit(user)}
+                        icon="edit"
+                        label="Edit user"
+                        variant="primary"
+                      />
+                      <IconButton
+                        onClick={() => handleDelete(user.id)}
+                        icon="delete"
+                        label="Delete user"
+                        variant="danger"
+                      />
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -120,39 +161,23 @@ function AdminUsersPage() {
         </div>
       )}
 
-      {selectedUser && (
-        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={`Edit Roles for ${selectedUser.email}`}>
-          <div className="p-4">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Assign Roles</h3>
-            <div className="space-y-2">
-              {allRoles.map(role => (
-                <div key={role} className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id={`role-${role}`}
-                    checked={selectedUser.roles.includes(role)}
-                    onChange={(e) => handleRoleChange(role, e.target.checked)}
-                    className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-                  />
-                  <label htmlFor={`role-${role}`} className="ml-2 block text-sm text-gray-900">
-                    {role}
-                  </label>
-                </div>
-              ))}
-            </div>
-            <div className="flex justify-end mt-6 space-x-2">
-              <button onClick={() => setIsModalOpen(false)} className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300">Cancel</button>
-              <button onClick={handleSaveRoles} className="bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-dark">Save Roles</button>
-            </div>
-          </div>
-        </Modal>
-      )}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={selectedUser ? 'Edit User' : 'Create User'}
+      >
+        <UserForm
+          user={selectedUser}
+          onSave={handleSave}
+          onCancel={() => setIsModalOpen(false)}
+        />
+      </Modal>
     </>
   );
 }
 
 AdminUsersPage.getLayout = function getLayout(page) {
-    return <DashboardLayout>{page}</DashboardLayout>;
+  return <DashboardLayout>{page}</DashboardLayout>;
 };
 
 export default AdminUsersPage;

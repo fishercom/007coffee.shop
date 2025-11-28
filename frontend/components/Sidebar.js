@@ -52,10 +52,6 @@ const Sidebar = () => {
           <FiShoppingCart className="w-6 h-6 mr-3" />
           My Orders
         </Link>
-        <Link href="/members" className="flex items-center px-4 py-2 mt-4 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md">
-          <FiUsers className="w-6 h-6 mr-3" />
-          Members
-        </Link>
         <Link href="/profile" className="flex items-center px-4 py-2 mt-4 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md">
           <FiSettings className="w-6 h-6 mr-3" />
           My Profile
