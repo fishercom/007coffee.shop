@@ -12,6 +12,10 @@ namespace Application.Orders.Commands
     public class CreateOrderCommand : IRequest<int>
     {
         public string UserId { get; set; } = string.Empty;
+        public string ShippingAddress { get; set; } = string.Empty;
+        public string ShippingCity { get; set; } = string.Empty;
+        public string ShippingPostalCode { get; set; } = string.Empty;
+        public string ShippingCountry { get; set; } = string.Empty;
         public List<CreateOrderItemDto> Items { get; set; } = new List<CreateOrderItemDto>();
     }
 }

@@ -44,6 +44,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
 builder.Services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<AppDbContext>());
+builder.Services.AddTransient<Infrastructure.Services.EmailService>();
+builder.Services.AddTransient<IEmailService, Infrastructure.Services.EmailService>();
 
 builder.Services.AddIdentity<Domain.Entities.ApplicationUser, Microsoft.AspNetCore.Identity.IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>();
@@ -107,40 +109,37 @@ using (var scope = app.Services.CreateScope())
     {
         var databaseCreator = dbContext.Database.GetService<IDatabaseCreator>() as RelationalDatabaseCreator;
         
-        // Check if the critical 'Categories' table exists
-        var tablesExist = false;
-        try 
-        {
-            // Just try to query the table. If it fails, we assume schema is missing/corrupt.
-            // Using a raw command to avoid EF Core overhead/caching issues for this check.
-            using (var command = dbContext.Database.GetDbConnection().CreateCommand())
+            // Check if the critical 'Categories' table exists and 'Orders' has 'ShippingAddress'
+            var schemaValid = false;
+            try 
             {
-                command.CommandText = "SELECT 1 FROM \"Categories\" LIMIT 1";
-                dbContext.Database.OpenConnection();
-                using (var result = command.ExecuteReader())
+                using (var command = dbContext.Database.GetDbConnection().CreateCommand())
                 {
-                    tablesExist = true;
+                    command.CommandText = "SELECT \"ShippingAddress\" FROM \"Orders\" LIMIT 1";
+                    dbContext.Database.OpenConnection();
+                    using (var result = command.ExecuteReader())
+                    {
+                        schemaValid = true;
+                    }
                 }
             }
-        }
-        catch 
-        {
-            // Table doesn't exist or other error
-            tablesExist = false;
-        }
-        finally
-        {
-            dbContext.Database.CloseConnection();
-        }
+            catch 
+            {
+                schemaValid = false;
+            }
+            finally
+            {
+                dbContext.Database.CloseConnection();
+            }
 
-        if (!tablesExist)
-        {
-            Console.WriteLine("Categories table missing. Performing clean slate initialization...");
-            // WARNING: This deletes the database! Only for demo/dev environments.
-            dbContext.Database.EnsureDeleted();
-            dbContext.Database.EnsureCreated();
-            Console.WriteLine("Database recreated successfully.");
-        }
+            if (!schemaValid)
+            {
+                Console.WriteLine("Database schema out of date (missing ShippingAddress). Performing clean slate initialization...");
+                // WARNING: This deletes the database! Only for demo/dev environments.
+                dbContext.Database.EnsureDeleted();
+                dbContext.Database.EnsureCreated();
+                Console.WriteLine("Database recreated successfully.");
+            }
         else
         {
             Console.WriteLine("Database schema appears correct.");

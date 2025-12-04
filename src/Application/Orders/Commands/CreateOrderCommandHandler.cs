@@ -6,17 +6,19 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic; // Explicitly added
+using System.Collections.Generic;
 
 namespace Application.Orders.Commands
 {
     public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, int>
     {
         private readonly IApplicationDbContext _context;
+        private readonly IEmailService _emailService;
 
-        public CreateOrderCommandHandler(IApplicationDbContext context)
+        public CreateOrderCommandHandler(IApplicationDbContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         public async Task<int> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
@@ -31,7 +33,11 @@ namespace Application.Orders.Commands
             {
                 UserId = request.UserId,
                 OrderDate = DateTime.UtcNow,
-                Status = "Pending", // Initial status
+                Status = "Pending",
+                ShippingAddress = request.ShippingAddress,
+                ShippingCity = request.ShippingCity,
+                ShippingPostalCode = request.ShippingPostalCode,
+                ShippingCountry = request.ShippingCountry,
                 OrderItems = new List<OrderItem>()
             };
 
@@ -54,18 +60,31 @@ namespace Application.Orders.Commands
                 {
                     ProductId = itemDto.ProductId,
                     Quantity = itemDto.Quantity,
-                    UnitPrice = product.Price // Capture price at the time of order
+                    UnitPrice = product.Price,
+                    Product = product // Set navigation property for email template
                 };
                 order.OrderItems.Add(orderItem);
                 totalAmount += orderItem.Quantity * orderItem.UnitPrice;
 
-                product.Stock -= orderItem.Quantity; // Reduce stock
+                product.Stock -= orderItem.Quantity;
             }
 
             order.TotalAmount = totalAmount;
 
             _context.Orders.Add(order);
             await _context.SaveChangesAsync(cancellationToken);
+
+            // Send Email Confirmation
+            try 
+            {
+                var emailBody = Application.Common.EmailTemplates.GetOrderConfirmationEmail(order);
+                await _emailService.SendEmailAsync(user.Email, $"Order Confirmation #{order.Id} - 007 Coffee Shop", emailBody);
+            }
+            catch (Exception ex)
+            {
+                // Log error but don't fail the order
+                Console.WriteLine($"Failed to send email: {ex.Message}");
+            }
 
             return order.Id;
         }
