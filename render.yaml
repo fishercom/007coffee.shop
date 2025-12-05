@@ -10,7 +10,7 @@ services:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
       - key: DATABASE_URL
-        value: postgresql://db_007coffee_shop_user:Rr4F908bcZbXoKKgLH6AS1FpdQFelFuX@dpg-d4jhnuf5r7bs73ff7ong-a.oregon-postgres.render.com/db_007coffee_shop
+        sync: false
       # SMTP Settings
       - key: SMTP_HOST
         sync: false
