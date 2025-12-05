@@ -10,7 +10,67 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Identity;
 
+// Load environment variables from .env file (if it exists)
+// This must be done before creating the builder so that environment variables
+// are available when the configuration system reads appsettings.json
+var envPath = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", ".env");
+if (File.Exists(envPath))
+{
+    DotNetEnv.Env.Load(envPath);
+    Console.WriteLine($"Loaded environment variables from: {envPath}");
+}
+else
+{
+    Console.WriteLine($".env file not found at: {envPath}. Using system environment variables only.");
+}
+
 var builder = WebApplication.CreateBuilder(args);
+
+// Manually map environment variables to configuration sections
+// ASP.NET Core's configuration system requires specific naming conventions
+// We'll override the configuration values with environment variables
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SMTP_HOST")))
+{
+    builder.Configuration["SmtpSettings:Host"] = Environment.GetEnvironmentVariable("SMTP_HOST");
+}
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SMTP_PORT")))
+{
+    builder.Configuration["SmtpSettings:Port"] = Environment.GetEnvironmentVariable("SMTP_PORT");
+}
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SMTP_USERNAME")))
+{
+    builder.Configuration["SmtpSettings:Username"] = Environment.GetEnvironmentVariable("SMTP_USERNAME");
+}
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SMTP_PASSWORD")))
+{
+    builder.Configuration["SmtpSettings:Password"] = Environment.GetEnvironmentVariable("SMTP_PASSWORD");
+}
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SMTP_FROM_EMAIL")))
+{
+    builder.Configuration["SmtpSettings:FromEmail"] = Environment.GetEnvironmentVariable("SMTP_FROM_EMAIL");
+}
+
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY")))
+{
+    builder.Configuration["Stripe:SecretKey"] = Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY");
+}
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("STRIPE_PUBLISHABLE_KEY")))
+{
+    builder.Configuration["Stripe:PublishableKey"] = Environment.GetEnvironmentVariable("STRIPE_PUBLISHABLE_KEY");
+}
+
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("JWT_KEY")))
+{
+    builder.Configuration["Jwt:Key"] = Environment.GetEnvironmentVariable("JWT_KEY");
+}
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("JWT_ISSUER")))
+{
+    builder.Configuration["Jwt:Issuer"] = Environment.GetEnvironmentVariable("JWT_ISSUER");
+}
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("JWT_AUDIENCE")))
+{
+    builder.Configuration["Jwt:Audience"] = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+}
 
 // Check for DATABASE_URL environment variable (Render)
 var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
@@ -26,7 +86,9 @@ if (!string.IsNullOrEmpty(databaseUrl))
         var user = userInfo[0];
         var passwd = userInfo.Length > 1 ? userInfo[1] : "";
         var port = uri.Port > 0 ? uri.Port : 5432;
-        connectionString = $"Host={uri.Host};Port={port};Database={db};Username={user};Password={passwd};Pooling=true;SSL Mode=Require;Trust Server Certificate=true;";
+        // Only require SSL for production (non-localhost) connections
+        var sslMode = uri.Host == "localhost" || uri.Host == "127.0.0.1" ? "Prefer" : "Require";
+        connectionString = $"Host={uri.Host};Port={port};Database={db};Username={user};Password={passwd};Pooling=true;SSL Mode={sslMode};Trust Server Certificate=true;";
     }
     catch (Exception ex)
     {
