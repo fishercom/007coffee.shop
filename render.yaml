@@ -11,6 +11,29 @@ services:
         value: Production
       - key: DATABASE_URL
         value: postgresql://db_007coffee_shop_user:Rr4F908bcZbXoKKgLH6AS1FpdQFelFuX@dpg-d4jhnuf5r7bs73ff7ong-a.oregon-postgres.render.com/db_007coffee_shop
+      # SMTP Settings
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USERNAME
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_FROM_EMAIL
+        value: orders@007coffee.shop
+      # Stripe Settings
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false
+      # JWT Settings
+      - key: JWT_KEY
+        sync: false
+      - key: JWT_ISSUER
+        value: 007coffee.shop
+      - key: JWT_AUDIENCE
+        value: 007coffee.shop
 
   # Frontend Service
   - type: web
@@ -23,3 +46,5 @@ services:
     envVars:
       - key: NEXT_PUBLIC_API_URL
         value: https://coffee-shop-backend-sjys.onrender.com
+      - key: NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+        sync: false
