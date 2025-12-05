@@ -56,6 +56,8 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(
                 "http://localhost:3000",
+                "https://007coffee.shop",
+                "https://www.007coffee.shop",
                 "https://coffee-shop-frontend-iazx.onrender.com"
               )
               .AllowAnyHeader()
