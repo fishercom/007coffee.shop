@@ -1,9 +1,10 @@
 using Application.Interfaces;
 using Microsoft.Extensions.Configuration;
 using System;
-using System.Net;
-using System.Net.Mail;
 using System.Threading.Tasks;
+using MailKit.Net.Smtp;
+using MailKit.Security;
+using MimeKit;
 
 namespace Infrastructure.Services
 {
@@ -23,7 +24,7 @@ namespace Infrastructure.Services
             var port = int.Parse(smtpSettings["Port"] ?? "587");
             var username = smtpSettings["Username"];
             var password = smtpSettings["Password"];
-            var fromEmail = smtpSettings["FromEmail"] ?? "noreply@007coffee.shop";
+            var fromEmail = smtpSettings["FromEmail"] ?? "orders@007coffee.shop";
 
             if (string.IsNullOrEmpty(host) || string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
@@ -31,21 +32,36 @@ namespace Infrastructure.Services
                 return;
             }
 
-            using (var client = new SmtpClient(host, port))
+            try 
             {
-                client.Credentials = new NetworkCredential(username, password);
-                client.EnableSsl = true;
+                var message = new MimeMessage();
+                message.From.Add(new MailboxAddress("007 Coffee Shop", fromEmail));
+                message.To.Add(new MailboxAddress("", to));
+                message.Subject = subject;
 
-                var mailMessage = new MailMessage
+                var bodyBuilder = new BodyBuilder { HtmlBody = body };
+                message.Body = bodyBuilder.ToMessageBody();
+
+                using (var client = new SmtpClient())
                 {
-                    From = new MailAddress(fromEmail),
-                    Subject = subject,
-                    Body = body,
-                    IsBodyHtml = true,
-                };
-                mailMessage.To.Add(to);
+                    // For Port 587, use StartTls. For Port 465, use SslOnConnect.
+                    var secureSocketOptions = port == 465 ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.StartTls;
+                    
+                    // Bypass certificate validation if necessary (MailKit makes this easy)
+                    client.ServerCertificateValidationCallback = (s, c, h, e) => true;
 
-                await client.SendMailAsync(mailMessage);
+                    await client.ConnectAsync(host, port, secureSocketOptions);
+                    await client.AuthenticateAsync(username, password);
+                    await client.SendAsync(message);
+                    await client.DisconnectAsync(true);
+                    
+                    Console.WriteLine($"Email sent successfully to {to} via {host} (MailKit)");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"SMTP Error for {to}: {ex.Message}");
+                throw;
             }
         }
     }
