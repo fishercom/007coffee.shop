@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Lora:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,9 +6,19 @@
 
 @layer base {
   body {
-    @apply font-sans text-text-primary bg-background;
+    @apply font-sans font-light text-text-primary bg-background antialiased selection:bg-accent selection:text-background;
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-serif;
+    @apply font-serif font-semibold tracking-tight;
+  }
+}
+
+@layer utilities {
+  .glassmorphism {
+    @apply bg-glass-gradient backdrop-blur-md border border-white/10 shadow-glass;
+  }
+  
+  .luxury-button {
+    @apply bg-gold-gradient text-background font-bold py-3 px-8 rounded-md shadow-gold hover:opacity-90 transition-all duration-300 transform hover:-translate-y-1;
   }
 }
