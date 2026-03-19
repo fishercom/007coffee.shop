@@ -29,7 +29,7 @@ function CategoriesPage() {
       const response = await api.get('/categories');
       setCategories(response.data);
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      console.log('Error fetching categories:', error.message || error);
     } finally {
       setLoading(false);
     }
@@ -51,7 +51,7 @@ function CategoriesPage() {
         await api.delete(`/categories/${id}`);
         fetchCategories();
       } catch (error) {
-        console.error('Error deleting category:', error);
+        console.log('Error deleting category:', error.message || error);
         alert('Error deleting category: ' + (error.response?.data?.message || error.message));
       }
     }
@@ -67,7 +67,7 @@ function CategoriesPage() {
       fetchCategories();
       setIsModalOpen(false);
     } catch (error) {
-      console.error('Error saving category:', error);
+      console.log('Error saving category:', error.message || error);
     }
   };
 

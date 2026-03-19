@@ -72,38 +72,60 @@ if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("JWT_AUDIENCE")))
     builder.Configuration["Jwt:Audience"] = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
 }
 
-// Check for DATABASE_URL environment variable (Render)
+// Check for DatabaseProvider
+var databaseProvider = Environment.GetEnvironmentVariable("DATABASE_PROVIDER") 
+    ?? builder.Configuration["DatabaseProvider"] 
+    ?? "Sqlite";
+
 var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
 string connectionString;
 
-if (!string.IsNullOrEmpty(databaseUrl))
+if (databaseProvider.Equals("Postgres", StringComparison.OrdinalIgnoreCase))
 {
-    try 
+    if (!string.IsNullOrEmpty(databaseUrl))
     {
-        var uri = new Uri(databaseUrl);
-        var db = uri.AbsolutePath.Trim('/');
-        var userInfo = uri.UserInfo.Split(':');
-        var user = userInfo[0];
-        var passwd = userInfo.Length > 1 ? userInfo[1] : "";
-        var port = uri.Port > 0 ? uri.Port : 5432;
-        // Only require SSL for production (non-localhost) connections
-        var sslMode = uri.Host == "localhost" || uri.Host == "127.0.0.1" ? "Prefer" : "Require";
-        connectionString = $"Host={uri.Host};Port={port};Database={db};Username={user};Password={passwd};Pooling=true;SSL Mode={sslMode};Trust Server Certificate=true;";
+        try 
+        {
+            var uri = new Uri(databaseUrl);
+            var db = uri.AbsolutePath.Trim('/');
+            var userInfo = uri.UserInfo.Split(':');
+            var user = userInfo[0];
+            var passwd = userInfo.Length > 1 ? userInfo[1] : "";
+            var port = uri.Port > 0 ? uri.Port : 5432;
+            // Only require SSL for production (non-localhost) connections
+            var sslMode = uri.Host == "localhost" || uri.Host == "127.0.0.1" ? "Prefer" : "Require";
+            connectionString = $"Host={uri.Host};Port={port};Database={db};Username={user};Password={passwd};Pooling=true;SSL Mode={sslMode};Trust Server Certificate=true;";
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error parsing DATABASE_URL: {ex.Message}");
+            throw;
+        }
     }
-    catch (Exception ex)
+    else
     {
-        Console.WriteLine($"Error parsing DATABASE_URL: {ex.Message}");
-        throw;
+        connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
+            ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
     }
+
+    builder.Services.AddDbContext<PostgresAppDbContext>(options =>
+        options.UseNpgsql(connectionString));
+    
+    // Register the base context class to resolve to this implementation
+    builder.Services.AddScoped<AppDbContext>(provider => provider.GetRequiredService<PostgresAppDbContext>());
 }
 else
 {
-    connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
-        ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-}
+    connectionString = Environment.GetEnvironmentVariable("SQLITE_CONNECTION")
+        ?? builder.Configuration.GetConnectionString("SqliteConnection") 
+        ?? "Data Source=007coffee.db";
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(connectionString));
+    builder.Services.AddDbContext<SqliteAppDbContext>(options =>
+        options.UseSqlite(connectionString));
+    
+    // Register the base context class to resolve to this implementation
+    builder.Services.AddScoped<AppDbContext>(provider => provider.GetRequiredService<SqliteAppDbContext>());
+}
 
 builder.Services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<AppDbContext>());
 builder.Services.AddTransient<Infrastructure.Services.EmailService>();

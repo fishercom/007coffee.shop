@@ -25,7 +25,7 @@ export default function HomePage() {
       setProducts(productsRes.data);
       setCategories(categoriesRes.data);
     } catch (error) {
-      console.error('Error fetching initial data:', error);
+      console.log('Error fetching initial data:', error.message || error);
     } finally {
       setLoading(false);
     }

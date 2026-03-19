@@ -47,7 +47,7 @@ export default function CheckoutPage() {
       })
         .then((res) => setClientSecret(res.data.clientSecret))
         .catch((err) => {
-          console.error("Error creating payment intent", err);
+          console.log("Error creating payment intent", err.message || err);
           setError("Failed to initialize payment.");
         });
     }
@@ -81,7 +81,7 @@ export default function CheckoutPage() {
       clearCart();
       router.push('/order-success');
     } catch (err) {
-      console.error('Error placing order:', err);
+      console.log('Error placing order:', err.message || err);
       setError(err.response?.data?.message || 'Failed to place order.');
       setLoading(false);
     }

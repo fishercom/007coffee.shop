@@ -32,7 +32,7 @@ function ProductsPage() {
       const response = await api.get('/products');
       setProducts(response.data);
     } catch (error) {
-      console.error('Error fetching products:', error);
+      console.log('Error fetching products:', error.message || error);
     } finally {
       setLoading(false);
     }
@@ -54,7 +54,7 @@ function ProductsPage() {
         await api.delete(`/products/${id}`);
         fetchProducts();
       } catch (error) {
-        console.error('Error deleting product:', error);
+        console.log('Error deleting product:', error.message || error);
       }
     }
   };
@@ -69,7 +69,7 @@ function ProductsPage() {
       fetchProducts();
       setIsModalOpen(false);
     } catch (error) {
-      console.error('Error saving product:', error);
+      console.log('Error saving product:', error.message || error);
     }
   };
 

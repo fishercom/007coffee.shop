@@ -32,7 +32,7 @@ function AdminUsersPage() {
       const response = await api.get('/users');
       setUsers(response.data);
     } catch (err) {
-      console.error('Error fetching all users:', err);
+      console.log('Error fetching all users:', err.message || err);
       setError(err.response?.data?.message || 'Failed to fetch users.');
     } finally {
       setLoading(false);
@@ -55,7 +55,7 @@ function AdminUsersPage() {
         await api.delete(`/users/${id}`);
         fetchAllUsers();
       } catch (err) {
-        console.error('Error deleting user:', err);
+        console.log('Error deleting user:', err.message || err);
         setError(err.response?.data?.message || 'Failed to delete user.');
       }
     }
@@ -76,7 +76,7 @@ function AdminUsersPage() {
       setIsModalOpen(false);
       fetchAllUsers();
     } catch (err) {
-      console.error('Error saving user:', err);
+      console.log('Error saving user:', err.message || err);
       setError(err.response?.data?.message || 'Failed to save user.');
     }
   };

@@ -10,6 +10,8 @@ obj/
 .vscode/
 *.vs/
 *.db
+*.db-shm
+*.db-wal
 
 # =========================
 # NuGet packages

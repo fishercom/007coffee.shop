@@ -23,7 +23,7 @@ export function AuthProvider({ children }) {
       });
       setUser(response.data);
     } catch (error) {
-      console.error('Error fetching user profile in AuthContext:', error);
+      console.log('Error fetching user profile in AuthContext:', error.message);
       // If fetching user profile fails, log out
       logout();
     }

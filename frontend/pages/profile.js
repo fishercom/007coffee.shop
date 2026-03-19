@@ -40,7 +40,7 @@ function ProfilePage() {
             setUser({ ...user, ...formData });
             setMessage({ type: 'success', text: 'Profile updated successfully.' });
         } catch (error) {
-            console.error('Error updating profile:', error);
+            console.log('Error updating profile:', error.message || error);
             setMessage({ type: 'error', text: 'Failed to update profile.' });
         } finally {
             setLoading(false);
@@ -63,7 +63,7 @@ function ProfilePage() {
             setMessage({ type: 'success', text: 'Password changed successfully.' });
             setPasswordData({ currentPassword: '', newPassword: '', confirmNewPassword: '' });
         } catch (error) {
-            console.error('Error changing password:', error);
+            console.log('Error changing password:', error.message || error);
             setMessage({ type: 'error', text: 'Failed to change password. Please check your current password.' });
         } finally {
             setLoading(false);

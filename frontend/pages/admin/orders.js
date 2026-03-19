@@ -33,7 +33,7 @@ function AdminOrdersPage() {
       const response = await api.get('/orders');
       setOrders(response.data);
     } catch (err) {
-      console.error('Error fetching all orders:', err);
+      console.log('Error fetching all orders:', err.message || err);
       setError(err.response?.data?.message || 'Failed to fetch orders.');
     } finally {
       setLoading(false);
@@ -55,7 +55,7 @@ function AdminOrdersPage() {
       setIsModalOpen(false);
       fetchAllOrders(); // Refresh orders
     } catch (err) {
-      console.error('Error updating order status:', err);
+      console.log('Error updating order status:', err.message || err);
       setError(err.response?.data?.message || 'Failed to update order status.');
     } finally {
       setLoading(false);

@@ -27,7 +27,7 @@ function OrdersPage() {
       const response = await api.get(`/orders/user/${user.id}`);
       setOrders(response.data);
     } catch (err) {
-      console.error('Error fetching user orders:', err);
+      console.log('Error fetching user orders:', err.message || err);
       setError(err.response?.data?.message || 'Failed to fetch orders.');
     } finally {
       setLoading(false);

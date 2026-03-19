@@ -34,7 +34,7 @@ export default function ProductForm({ product, onSave, onCancel }) {
       const response = await api.get('/categories');
       setCategories(response.data);
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      console.log('Error fetching categories:', error.message || error);
     }
   };
 
