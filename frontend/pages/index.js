@@ -46,18 +46,18 @@ export default function HomePage() {
   return (
     <Layout>
       {/* Hero Section */}
-      <div className="relative overflow-hidden bg-background mb-16">
+      <div className="relative overflow-hidden bg-background mb-12 sm:mb-16">
         <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-transparent z-10" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/90 to-background/70 z-10 sm:bg-gradient-to-r sm:from-background sm:via-background/90 sm:to-transparent" />
           {/* We use a very subtle pattern or image here, placeholder for now */}
           <div className="w-full h-full bg-[url('https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=2071&auto=format&fit=crop')] bg-cover bg-center opacity-40" />
         </div>
-        <div className="relative z-10 container mx-auto px-4 py-24 sm:py-32 flex flex-col items-start">
-          <p className="text-accent font-semibold tracking-widest uppercase mb-3">Experience Elite Coffee</p>
-          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 max-w-2xl leading-tight">
+        <div className="relative z-10 container mx-auto px-4 py-16 sm:py-24 md:py-32 flex min-h-[560px] flex-col items-start justify-center sm:min-h-0">
+          <p className="text-sm text-accent font-semibold tracking-widest uppercase mb-3 sm:text-base">Experience Elite Coffee</p>
+          <h1 className="max-w-full text-[2.35rem] sm:text-5xl md:text-7xl font-bold text-white mb-5 sm:max-w-2xl leading-tight">
             Masterfully Crafted Roasts.
           </h1>
-          <p className="text-text-secondary text-lg mb-8 max-w-xl">
+          <p className="text-text-secondary text-base sm:text-lg mb-8 max-w-xl">
             Sourced from the world's most exclusive estates. Roasted to double-O specifications. Never settle for ordinary.
           </p>
           <button className="luxury-button" onClick={() => document.getElementById('shop').scrollIntoView({ behavior: 'smooth' })}>
@@ -67,17 +67,17 @@ export default function HomePage() {
       </div>
 
       <div id="shop" className="container mx-auto px-4 mb-24">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-12">
-          <div>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-10 md:mb-12">
+          <div className="w-full md:w-auto">
             <h2 className="text-3xl font-bold text-white mb-2">Featured Roasts</h2>
             <div className="w-16 h-1 bg-accent mb-6" />
           </div>
 
           {/* Category Filters */}
-          <div className="flex flex-wrap gap-3">
+          <div className="-mx-4 flex w-screen max-w-[100vw] gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:w-auto md:max-w-none md:flex-wrap md:overflow-visible md:px-0 md:pb-0">
             <button
               onClick={() => setSelectedCategory(null)}
-              className={`px-5 py-2 rounded-full font-medium transition-all ${
+              className={`shrink-0 px-5 py-2 rounded-full font-medium transition-all ${
                 !selectedCategory ? 'bg-accent text-background shadow-gold' : 'bg-surface text-text-secondary hover:text-white border border-white/5'
               }`}
             >
@@ -87,7 +87,7 @@ export default function HomePage() {
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-5 py-2 rounded-full font-medium transition-all ${
+                className={`shrink-0 px-5 py-2 rounded-full font-medium transition-all ${
                   selectedCategory?.id === cat.id ? 'bg-accent text-background shadow-gold' : 'bg-surface text-text-secondary hover:text-white border border-white/5'
                 }`}
               >
@@ -98,10 +98,10 @@ export default function HomePage() {
         </div>
 
         {/* Product Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
           {filteredProducts.map((product) => (
             <div key={product.id} className="bg-surface border border-white/5 rounded-xl overflow-hidden hover:shadow-glass hover:bg-surface-hover transition-all duration-300 group">
-              <div className="h-64 relative overflow-hidden bg-espresso-dark">
+              <div className="h-56 sm:h-64 relative overflow-hidden bg-espresso-dark">
                 {product.imageUrl ? (
                   <Image src={product.imageUrl} alt={product.name} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" style={{ objectFit: "cover" }} className="group-hover:scale-105 transition-transform duration-700" />
                 ) : (
